@@ -397,7 +397,8 @@ class GatheringModal(discord.ui.Modal):
             "participants": [],
             "started": False,
             "voice_id": None,
-            "creator_id": interaction.user.id
+            "creator_id": interaction.user.id,
+            "full_announced": False
         }
 
         gatherings[gathering_id] = gathering
@@ -626,10 +627,45 @@ class GatheringView(
             interaction.user.id
         )
 
-        await interaction.response.send_message(
-            "✅ Ты успешно записался в сбор!",
-            ephemeral=True
-        )
+        # ----------------------------------------------------
+        # Если все игроки набраны — тегаем ВСЕХ участников
+        # ----------------------------------------------------
+
+        if (
+            len(participants) >= gathering["max_players"]
+            and not gathering.get("full_announced", False)
+        ):
+            gathering["full_announced"] = True
+
+            mentions = " ".join(
+                f"<@{user_id}>"
+                for user_id in participants
+            )
+
+            await interaction.response.send_message(
+                "🎉 **Ты последний игрок! Сбор полностью набран.**",
+                ephemeral=True
+            )
+
+            try:
+                await interaction.channel.send(
+                    f"🎉 **СБОР НАБРАН!**\n\n"
+                    f"{mentions}\n\n"
+                    f"👥 Все **{len(participants)}/{gathering['max_players']}** "
+                    f"игрока собрались!\n"
+                    f"🔊 **Можете заходить и начинать!**",
+                    allowed_mentions=discord.AllowedMentions(
+                        users=True
+                    )
+                )
+            except (discord.Forbidden, discord.HTTPException):
+                pass
+
+        else:
+            await interaction.response.send_message(
+                "✅ Ты успешно записался в сбор!",
+                ephemeral=True
+            )
 
         await update_gathering_message(
             self.gathering_id
@@ -673,6 +709,11 @@ class GatheringView(
         gathering["participants"].remove(
             user_id
         )
+
+        # Снова разрешаем объявление, если сбор впоследствии
+        # будет набран заново.
+        if len(gathering["participants"]) < gathering["max_players"]:
+            gathering["full_announced"] = False
 
         await interaction.response.send_message(
             "🚪 Ты вышел из сбора.",
