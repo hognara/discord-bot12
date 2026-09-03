@@ -1,0 +1,24 @@
+# Secrets
+.env
+*.env
+
+# Bot data / local state
+bot_data.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
