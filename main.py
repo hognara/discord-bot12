@@ -1734,39 +1734,39 @@ async def on_ready():
     # --------------------------------------------------------
 
     try:
-    # Глобальная синхронизация
-    synced = await bot.tree.sync()
+        # Глобальная синхронизация
+        synced = await bot.tree.sync()
 
-    print(
-        f"Глобально синхронизировано команд: {len(synced)}"
-    )
+        print(
+            f"Глобально синхронизировано команд: {len(synced)}"
+        )
 
-    # Дополнительно синхронизируем команды
-    # непосредственно с каждым сервером.
-    # Благодаря этому новые команды появляются сразу.
-    for guild in bot.guilds:
-        try:
-            bot.tree.copy_global_to(guild=guild)
+        # Дополнительно синхронизируем команды
+        # непосредственно с каждым сервером.
+        # Благодаря этому новые команды появляются сразу.
+        for guild in bot.guilds:
+            try:
+                bot.tree.copy_global_to(guild=guild)
 
-            guild_synced = await bot.tree.sync(
-                guild=guild
-            )
+                guild_synced = await bot.tree.sync(
+                    guild=guild
+                )
 
-            print(
-                f"Сервер: {guild.name} | "
-                f"команд: {len(guild_synced)}"
-            )
+                print(
+                    f"Сервер: {guild.name} | "
+                    f"команд: {len(guild_synced)}"
+                )
 
-        except Exception as guild_error:
-            print(
-                f"Ошибка синхронизации "
-                f"сервера {guild.name}: {guild_error}"
-            )
+            except Exception as guild_error:
+                print(
+                    f"Ошибка синхронизации "
+                    f"сервера {guild.name}: {guild_error}"
+                )
 
-except Exception as error:
-    print(
-        f"Ошибка глобальной синхронизации: {error}"
-    )
+    except Exception as error:
+        print(
+            f"Ошибка глобальной синхронизации: {error}"
+        )
 
 # ============================================================
 # ЗАПУСК
